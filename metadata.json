@@ -1,0 +1,6 @@
+{
+  "name": "MecaGestion - Atelier Mécanique",
+  "description": "Système complet de gestion d'atelier mécanique avec suivi en temps réel, messagerie client-mécanicien et gestion de stock.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
