@@ -108,6 +108,17 @@ export default function App() {
     }
   };
 
+  const clearAllNotifications = async () => {
+    if (!window.confirm("Voulez-vous supprimer toutes vos notifications ?")) return;
+    try {
+      const config = { headers: { Authorization: `Bearer ${authData.token}` } };
+      await axios.delete("/api/notifications", config);
+      setNotifications([]);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem("meca_auth");
     resetSocket();
@@ -293,7 +304,17 @@ export default function App() {
                   >
                     <div className="p-4 border-b border-white/5 bg-white/[0.02] flex justify-between items-center">
                       <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Notifications</h3>
-                      <button onClick={() => setShowNotifications(false)} className="text-slate-600 hover:text-white"><X size={14} /></button>
+                      <div className="flex gap-2 items-center">
+                        {notifications.length > 0 && (
+                          <button 
+                            onClick={clearAllNotifications}
+                            className="text-[10px] font-bold text-red-400 hover:text-red-300 transition-colors uppercase tracking-tight"
+                          >
+                            Vider tout
+                          </button>
+                        )}
+                        <button onClick={() => setShowNotifications(false)} className="text-slate-600 hover:text-white"><X size={14} /></button>
+                      </div>
                     </div>
                     <div className="max-h-[300px] overflow-y-auto divide-y divide-white/5">
                       {notifications.length === 0 ? (

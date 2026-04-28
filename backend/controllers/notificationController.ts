@@ -19,3 +19,12 @@ export const markAsRead = async (req: any, res: any) => {
     res.status(500).json({ message: "Erreur" });
   }
 };
+
+export const deleteAllNotifications = async (req: any, res: any) => {
+  try {
+    await Notification.deleteMany({ userId: req.user._id });
+    res.json({ message: "Notifications supprimées" });
+  } catch (error) {
+    res.status(500).json({ message: "Erreur lors de la suppression" });
+  }
+};

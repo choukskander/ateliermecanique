@@ -4,7 +4,8 @@ let socket: ReturnType<typeof io> | null = null;
 
 export function getSocket(token?: string) {
   if (!socket) {
-    socket = io({
+    const apiURL = import.meta.env.VITE_API_URL || "";
+    socket = io(apiURL, {
       auth: token ? { token } : undefined,
     });
   } else if (token) {

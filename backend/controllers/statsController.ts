@@ -87,3 +87,64 @@ export const getUserInvoices = async (req: any, res: any) => {
     res.status(500).json({ message: "Erreur lors de la récupération de vos factures" });
   }
 };
+
+export const getUserStats = async (req: any, res: any) => {
+  try {
+    const userId = req.user._id;
+    const role = req.user.role;
+    
+    if (role === "client") {
+      const totalAppointments = await Appointment.countDocuments({ clientId: userId });
+      const lastAppointment = await Appointment.findOne({ clientId: userId }).sort({ date: -1 });
+      const invoices = await Invoice.find({ clientId: userId, status: "Payée" });
+      const totalSpent = invoices.reduce((acc, inv) => acc + (inv.totalTTC || 0), 0);
+
+      return res.json({
+        totalAppointments,
+        lastAppointment: lastAppointment ? lastAppointment.date : null,
+        totalSpent: totalSpent.toFixed(2) + "€",
+        labels: {
+          total: "Total Interventions",
+          last: "Dernier rendez-vous",
+          value: "Total Investi"
+        }
+      });
+    } else if (role === "mechanic") {
+      const totalRepairs = await Repair.countDocuments({ mechanicId: userId });
+      const lastRepair = await Repair.findOne({ mechanicId: userId }).sort({ updatedAt: -1 });
+      const repairs = await Repair.find({ mechanicId: userId, status: "Prêt" });
+      const totalGenerated = repairs.reduce((acc, r) => acc + (r.laborCost || 0), 0);
+
+      return res.json({
+        totalAppointments: totalRepairs,
+        lastAppointment: lastRepair ? lastRepair.updatedAt : null,
+        totalSpent: totalGenerated.toFixed(2) + "€",
+        labels: {
+          total: "Travaux Réalisés",
+          last: "Dernière Intervention",
+          value: "Main d'œuvre Générée"
+        }
+      });
+    } else {
+      // Admin
+      const totalAppointments = await Appointment.countDocuments();
+      const lastAppointment = await Appointment.findOne().sort({ date: -1 });
+      const allInvoices = await Invoice.find({ status: "Payée" });
+      const totalRevenue = allInvoices.reduce((acc, inv) => acc + (inv.totalTTC || 0), 0);
+
+      return res.json({
+        totalAppointments,
+        lastAppointment: lastAppointment ? lastAppointment.date : null,
+        totalSpent: totalRevenue.toFixed(2) + "€",
+        labels: {
+          total: "RDV Globaux",
+          last: "Dernière Activité",
+          value: "Chiffre d'Affaires"
+        }
+      });
+    }
+  } catch (error) {
+    console.error("Error fetching user stats:", error);
+    res.status(500).json({ message: "Erreur lors de la récupération des statistiques" });
+  }
+};

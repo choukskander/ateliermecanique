@@ -4,6 +4,7 @@ import Vehicle from "../models/Vehicle.ts";
 import Availability from "../models/Availability.ts";
 import Repair from "../models/Repair.ts";
 import Notification from "../models/Notification.ts";
+import User from "../models/User.ts";
 
 export const createAppointment = async (req: any, res: any) => {
   const { vehicleInfo, date, description, mechanicId } = req.body;
@@ -79,6 +80,26 @@ export const createAppointment = async (req: any, res: any) => {
       description,
       status: "En attente"
     });
+
+    // Notify Staff (Admins and Mechanics)
+    try {
+      const staffMembers = await User.find({ role: { $in: ["admin", "mechanic"] } });
+      const clientName = req.user.name || "Un client";
+      
+      for (const staff of staffMembers) {
+        const notification = await Notification.create({
+          userId: staff._id,
+          title: "Nouveau Rendez-vous",
+          message: `${clientName} a pris rendez-vous pour le ${new Date(date).toLocaleDateString('fr-FR')} à ${new Date(date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}.`,
+          type: "appointment"
+        });
+        
+        // Emit real-time notification to staff
+        (req as any).io?.to(staff._id.toString()).emit("notification", notification);
+      }
+    } catch (notifErr) {
+      console.error("Error sending staff notifications:", notifErr);
+    }
 
     res.status(201).json(appointment);
   } catch (error: any) {

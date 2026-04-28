@@ -11,6 +11,20 @@ export default function Profile({ currentUser, setAuthData }: { currentUser: any
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
+  const [stats, setStats] = useState<any>(null);
+
+  React.useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const config = { headers: { Authorization: `Bearer ${currentUser.token}` } };
+        const res = await axios.get("/api/stats/user", config);
+        setStats(res.data);
+      } catch (err) {
+        console.error("Error fetching stats", err);
+      }
+    };
+    fetchStats();
+  }, [currentUser.token]);
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -190,23 +204,23 @@ export default function Profile({ currentUser, setAuthData }: { currentUser: any
         </div>
 
         <div className="space-y-6">
-           <div className="bg-[#111114] border border-white/5 rounded-3xl p-6 space-y-4">
-              <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-4">Statistiques du compte</h4>
-              <div className="flex justify-between items-center py-3 border-b border-white/5">
-                 <span className="text-xs text-slate-400">Total Interventions</span>
-                 <span className="text-sm font-bold text-white">24</span>
-              </div>
-              <div className="flex justify-between items-center py-3 border-b border-white/5">
-                 <span className="text-xs text-slate-400">Dernier rendez-vous</span>
-                 <span className="text-xs font-bold text-white">Hier, 14:00</span>
-              </div>
-              <div className="flex justify-between items-center py-3">
-                 <span className="text-xs text-slate-400">Qualité Support</span>
-                 <div className="flex gap-1">
-                    {[1,2,3,4,5].map(i => <div key={i} className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>)}
-                 </div>
-              </div>
-           </div>
+            <div className="bg-[#111114] border border-white/5 rounded-3xl p-6 space-y-4">
+               <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-4">Statistiques du compte</h4>
+               <div className="flex justify-between items-center py-3 border-b border-white/5">
+                  <span className="text-xs text-slate-400">{stats?.labels?.total || 'Total Interventions'}</span>
+                  <span className="text-sm font-bold text-white">{stats?.totalAppointments || 0}</span>
+               </div>
+               <div className="flex justify-between items-center py-3 border-b border-white/5">
+                  <span className="text-xs text-slate-400">{stats?.labels?.last || 'Dernier rendez-vous'}</span>
+                  <span className="text-xs font-bold text-white">
+                    {stats?.lastAppointment ? new Date(stats.lastAppointment).toLocaleDateString('fr-FR') : 'Aucun'}
+                  </span>
+               </div>
+               <div className="flex justify-between items-center py-3">
+                  <span className="text-xs text-slate-400">{stats?.labels?.value || 'Total Investi'}</span>
+                  <span className="text-sm font-bold text-white">{stats?.totalSpent || '0.00€'}</span>
+               </div>
+            </div>
 
            <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl p-6 text-white shadow-xl shadow-blue-600/10">
               <h3 className="font-bold text-lg mb-2">AutoFlow Prime</h3>
