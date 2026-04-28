@@ -22,6 +22,7 @@ export const registerUser = async (req: any, res: any) => {
       name: user.name,
       email: user.email,
       role: user.role,
+      phone: user.phone,
       token: generateToken(user.id),
     });
   } else {
@@ -40,6 +41,7 @@ export const loginUser = async (req: any, res: any) => {
       name: user.name,
       email: user.email,
       role: user.role,
+      phone: user.phone,
       token: generateToken(user.id),
     });
   } else {
