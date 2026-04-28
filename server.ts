@@ -27,16 +27,19 @@ dotenv.config();
 async function startServer() {
   const app = express();
   const httpServer = createServer(app);
-  const PORT = 3000;
+  const PORT = process.env.PORT || 3000;
 
   // Middleware setup
-  app.use(cors());
+  app.use(cors({
+    origin: process.env.CLIENT_URL || "*",
+    credentials: true
+  }));
   app.use(express.json());
 
   // Socket.io initialization
   const io = new Server(httpServer, {
     cors: {
-      origin: "*",
+      origin: process.env.CLIENT_URL || "*",
       methods: ["GET", "POST"]
     }
   });

@@ -17,6 +17,8 @@ import { motion, AnimatePresence } from "motion/react";
 import axios from "axios";
 import { getSocket, resetSocket } from "./lib/socket";
 
+axios.defaults.baseURL = import.meta.env.VITE_API_URL || "";
+
 // Section Components
 import Dashboard from "./components/Dashboard";
 import Appointments from "./components/Appointments";

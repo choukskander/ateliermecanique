@@ -7,6 +7,7 @@ export default function Invoices({ currentUser }: { currentUser: any }) {
   const [invoices, setInvoices] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<any>(null);
+  const [paying, setPaying] = useState(false);
 
   const fetchInvoices = async () => {
     setLoading(true);
@@ -18,6 +19,21 @@ export default function Invoices({ currentUser }: { currentUser: any }) {
       setInvoices([]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleMarkPaid = async (id: string) => {
+    if (!window.confirm("Marquer cette facture comme payée ?")) return;
+    setPaying(true);
+    try {
+      const config = { headers: { Authorization: `Bearer ${currentUser.token}` } };
+      await axios.patch(`/api/invoices/${id}/pay`, {}, config);
+      fetchInvoices();
+      setSelected({ ...selected, status: "Payée" });
+    } catch (e) {
+      alert("Erreur lors de la mise à jour.");
+    } finally {
+      setPaying(false);
     }
   };
 
@@ -112,9 +128,28 @@ export default function Invoices({ currentUser }: { currentUser: any }) {
               </div>
 
               <div className="mt-6 grid grid-cols-1 gap-3">
-                <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5 flex items-center justify-between">
-                  <span className="text-xs text-slate-400 font-bold uppercase tracking-widest">Pièces</span>
-                  <span className="text-sm font-bold text-white">{Number(selected.totalParts || 0).toFixed(2)}€</span>
+                <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5 flex flex-col gap-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-slate-400 font-bold uppercase tracking-widest">Pièces</span>
+                    <span className="text-sm font-bold text-white">{Number(selected.totalParts || 0).toFixed(2)}€</span>
+                  </div>
+                  
+                  {selected.repairId?.partsUsed && selected.repairId.partsUsed.length > 0 && (
+                    <div className="pt-3 border-t border-white/5 space-y-2">
+                      {selected.repairId.partsUsed.map((pu: any, idx: number) => (
+                        <div key={idx} className="flex items-center justify-between text-[11px]">
+                          <div className="flex flex-col">
+                            <span className="text-slate-200 font-medium">{pu.partId?.name || "Pièce inconnue"}</span>
+                            <span className="text-slate-500 font-mono text-[9px] uppercase">{pu.partId?.reference || "REF-N/A"}</span>
+                          </div>
+                          <div className="text-right">
+                            <span className="text-slate-400 mr-2">x{pu.quantity}</span>
+                            <span className="text-slate-200 font-bold">{(Number(pu.partId?.price || 0) * pu.quantity).toFixed(2)}€</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5 flex items-center justify-between">
                   <span className="text-xs text-slate-400 font-bold uppercase tracking-widest">Main d’œuvre</span>
@@ -125,10 +160,25 @@ export default function Invoices({ currentUser }: { currentUser: any }) {
                   <span className="text-lg font-extrabold text-white">{Number(selected.totalTTC || 0).toFixed(2)}€</span>
                 </div>
 
-                {selected.status === "Payée" && (
+                {selected.status === "Payée" ? (
                   <div className="flex items-center gap-2 text-green-500 text-xs font-bold uppercase tracking-wider">
                     <CheckCircle2 size={14} /> Paiement enregistré
                   </div>
+                ) : (
+                  (currentUser.role === "admin" || currentUser.role === "mechanic") && (
+                    <button
+                      disabled={paying}
+                      onClick={() => handleMarkPaid(selected._id)}
+                      className="w-full mt-2 py-3 bg-green-600/10 border border-green-600/20 rounded-xl text-xs font-bold text-green-500 hover:bg-green-600/20 transition-all flex items-center justify-center gap-2"
+                    >
+                      {paying ? (
+                        <Loader2 className="animate-spin" size={14} />
+                      ) : (
+                        <CheckCircle2 size={14} />
+                      )}
+                      Marquer comme payée
+                    </button>
+                  )
                 )}
               </div>
             </motion.div>

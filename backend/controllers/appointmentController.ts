@@ -162,3 +162,16 @@ export const updateAppointmentStatus = async (req: any, res: any) => {
     res.status(500).json({ message: "Erreur lors de la mise à jour" });
   }
 };
+
+export const deleteAppointment = async (req: any, res: any) => {
+  const { id } = req.params;
+  if (!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({ message: "ID invalide" });
+
+  try {
+    const appointment = await Appointment.findByIdAndDelete(id);
+    if (!appointment) return res.status(404).json({ message: "Rendez-vous non trouvé" });
+    res.json({ message: "Rendez-vous supprimé avec succès" });
+  } catch (error) {
+    res.status(500).json({ message: "Erreur lors de la suppression" });
+  }
+};

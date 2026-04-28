@@ -8,7 +8,8 @@ import {
   Clock, 
   Settings as SettingsIcon, 
   ChevronRight,
-  AlertCircle
+  AlertCircle,
+  Trash2
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import axios from "axios";
@@ -220,7 +221,19 @@ export default function Appointments({ currentUser }: { currentUser: any }) {
     }
   };
 
-  const handleStartRepair = async (appointmentId: string) => {
+  const handleDelete = async (id: string) => {
+    if (!window.confirm("Supprimer ce rendez-vous définitivement ?")) return;
+    try {
+      const config = { headers: { Authorization: `Bearer ${currentUser.token}` } };
+      await axios.delete(`/api/appointments/${id}`, config);
+      fetchAppointments();
+    } catch (err) {
+      console.error("Error deleting appointment", err);
+      alert("Erreur lors de la suppression");
+    }
+  };
+ 
+   const handleStartRepair = async (appointmentId: string) => {
     try {
       const config = { headers: { Authorization: `Bearer ${currentUser.token}` } };
       await axios.post(`/api/repairs/from-appointment/${appointmentId}`, {}, config);
@@ -316,6 +329,15 @@ export default function Appointments({ currentUser }: { currentUser: any }) {
                       className="flex items-center gap-2 px-3 py-1.5 bg-blue-600/10 text-blue-500 rounded-lg border border-blue-500/20 hover:bg-blue-600/20 transition-all text-[10px] font-bold uppercase"
                     >
                       Démarrer les travaux
+                    </button>
+                  )}
+                  {(currentUser.role === 'mechanic' || currentUser.role === 'admin') && (
+                    <button 
+                      onClick={() => handleDelete(apt._id)} 
+                      className="p-1.5 bg-red-500/10 text-red-500 rounded-lg border border-red-500/20 hover:bg-red-500/20 transition-all ml-1" 
+                      title="Supprimer"
+                    >
+                      <Trash2 size={14} />
                     </button>
                   )}
                 </div>
