@@ -6,6 +6,8 @@ import axios from "axios";
 export default function Profile({ currentUser, setAuthData }: { currentUser: any, setAuthData: (data: any) => void }) {
   const [name, setName] = useState(currentUser.name);
   const [phone, setPhone] = useState(currentUser.phone || "");
+  const [mf, setMf] = useState(currentUser.matriculeFiscale || "");
+  const [address, setAddress] = useState(currentUser.address || "");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -43,6 +45,8 @@ export default function Profile({ currentUser, setAuthData }: { currentUser: any
       const res = await axios.patch("/api/users/profile", { 
         name, 
         phone,
+        matriculeFiscale: mf,
+        address,
         ...(password ? { password } : {})
       }, config);
       
@@ -135,6 +139,32 @@ export default function Profile({ currentUser, setAuthData }: { currentUser: any
                         onChange={(e) => setPhone(e.target.value)}
                         className="w-full bg-[#16161A] border border-white/10 rounded-2xl pl-11 pr-4 py-3.5 text-sm text-white outline-none focus:border-blue-500/50 transition-all font-medium" 
                         placeholder="+216 -- --- ---" 
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest pl-1">Matricule Fiscale</label>
+                    <div className="relative group">
+                      <Shield className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-blue-500 transition-colors" size={17} />
+                      <input 
+                        type="text" 
+                        value={mf}
+                        onChange={(e) => setMf(e.target.value)}
+                        className="w-full bg-[#16161A] border border-white/10 rounded-2xl pl-11 pr-4 py-3.5 text-sm text-white outline-none focus:border-blue-500/50 transition-all font-medium" 
+                        placeholder="1234567/A/B/C/000" 
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2 md:col-span-2">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest pl-1">Adresse</label>
+                    <div className="relative group">
+                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-blue-500 transition-colors" size={17} />
+                      <input 
+                        type="text" 
+                        value={address}
+                        onChange={(e) => setAddress(e.target.value)}
+                        className="w-full bg-[#16161A] border border-white/10 rounded-2xl pl-11 pr-4 py-3.5 text-sm text-white outline-none focus:border-blue-500/50 transition-all font-medium" 
+                        placeholder="Rue ..., Ville, Tunisie" 
                       />
                     </div>
                   </div>

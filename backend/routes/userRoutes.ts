@@ -9,7 +9,7 @@ router.get("/clients", protect, staffOnly, getClients);
 router.get("/staff", protect, getStaff);
 
 router.patch("/profile", protect, async (req: any, res: any) => {
-  const { name, phone, password } = req.body;
+  const { name, phone, password, matriculeFiscale, address } = req.body;
   try {
     const user = await User.findById(req.user._id);
     if (!user) return res.status(404).json({ message: "Utilisateur non trouvé" });
@@ -17,6 +17,8 @@ router.patch("/profile", protect, async (req: any, res: any) => {
     if (name) user.name = name;
     if (phone) user.phone = phone;
     if (password) user.password = password;
+    if (matriculeFiscale !== undefined) user.matriculeFiscale = matriculeFiscale;
+    if (address !== undefined) user.address = address;
 
     const updatedUser = await user.save();
     res.json({
@@ -25,6 +27,8 @@ router.patch("/profile", protect, async (req: any, res: any) => {
       email: updatedUser.email,
       role: updatedUser.role,
       phone: updatedUser.phone,
+      matriculeFiscale: updatedUser.matriculeFiscale,
+      address: updatedUser.address,
       token: req.headers.authorization.split(" ")[1]
     });
   } catch (error) {

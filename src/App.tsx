@@ -182,9 +182,66 @@ export default function App() {
             </div>
             <span className="font-bold text-lg tracking-tight text-white italic uppercase">AutoFlow</span>
           </div>
-          <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 text-slate-400 hover:text-white transition-colors">
-            {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
+          <div className="flex items-center gap-2">
+            {/* Notification Bell for Mobile */}
+            <div className="relative">
+              <button 
+                onClick={() => {
+                  setShowNotifications(!showNotifications);
+                  if (!showNotifications) markNotificationsRead();
+                }}
+                className="p-2 text-slate-400 hover:text-white transition-colors relative"
+              >
+                <Bell size={20} />
+                {notifications.some(n => !n.read) && (
+                  <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 border-2 border-[#111114] rounded-full"></span>
+                )}
+              </button>
+
+              <AnimatePresence>
+                {showNotifications && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    className="absolute right-[-60px] sm:right-0 mt-3 w-[calc(100vw-2rem)] sm:w-80 bg-[#111114] border border-white/10 rounded-2xl shadow-2xl z-50 overflow-hidden"
+                  >
+                    <div className="p-4 border-b border-white/5 bg-white/[0.02] flex justify-between items-center">
+                      <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Notifications</h3>
+                      <div className="flex gap-2 items-center">
+                        {notifications.length > 0 && (
+                          <button 
+                            onClick={clearAllNotifications}
+                            className="text-[10px] font-bold text-red-400 hover:text-red-300 transition-colors uppercase tracking-tight"
+                          >
+                            Vider
+                          </button>
+                        )}
+                        <button onClick={() => setShowNotifications(false)} className="text-slate-600 hover:text-white"><X size={14} /></button>
+                      </div>
+                    </div>
+                    <div className="max-h-[300px] overflow-y-auto divide-y divide-white/5">
+                      {notifications.length === 0 ? (
+                        <div className="p-8 text-center text-slate-600 text-xs italic">Aucune notification</div>
+                      ) : (
+                        notifications.map((n: any, i) => (
+                          <div key={i} className={`p-4 hover:bg-white/[0.02] transition-colors ${!n.read ? 'bg-blue-500/5' : ''}`}>
+                             <p className="text-xs font-bold text-white mb-1">{n.title}</p>
+                             <p className="text-[10px] text-slate-400 leading-normal">{n.message}</p>
+                             <p className="text-[9px] text-slate-600 mt-2 font-mono">{new Date(n.createdAt).toLocaleString()}</p>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 text-slate-400 hover:text-white transition-colors">
+              {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
         </div>
       </header>
 

@@ -5,6 +5,10 @@ const invoiceSchema = new mongoose.Schema({
   repairId: { type: mongoose.Schema.Types.ObjectId, ref: "Repair", required: true },
   totalParts: { type: Number, required: true },
   totalLabor: { type: Number, required: true },
+  totalHT: { type: Number, required: true, default: 0 },
+  tvaRate: { type: Number, default: 19 },
+  tvaAmount: { type: Number, default: 0 },
+  timbreFiscal: { type: Number, default: 1.000 },
   totalTTC: { type: Number, required: true },
   status: { 
     type: String, 

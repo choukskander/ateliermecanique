@@ -103,10 +103,10 @@ export const updateRepairPartsUsed = async (req: any, res: any) => {
     // 3. Sync Invoice if needed
     const populated: any = await Repair.findById(id).populate("partsUsed.partId");
     if (populated.status === "Prêt") {
-      const { totalParts, totalLabor, totalTTC } = await computeInvoiceTotals(id);
+      const { totalParts, totalLabor, totalHT, tvaRate, tvaAmount, timbreFiscal, totalTTC } = await computeInvoiceTotals(id);
       await Invoice.findOneAndUpdate(
         { repairId: id },
-        { totalParts, totalLabor, totalTTC },
+        { totalParts, totalLabor, totalHT, tvaRate, tvaAmount, timbreFiscal, totalTTC },
         { upsert: false }
       );
     }
@@ -178,7 +178,7 @@ export const updateRepairStatus = async (req: any, res: any) => {
 
       if (clientId) {
         // Create or Update invoice
-        const { totalParts, totalLabor, totalTTC } = await computeInvoiceTotals(updatedRepair._id);
+        const { totalParts, totalLabor, totalHT, tvaRate, tvaAmount, timbreFiscal, totalTTC } = await computeInvoiceTotals(updatedRepair._id);
         const existingInvoice = await Invoice.findOne({ repairId: updatedRepair._id });
         
         if (!existingInvoice) {
@@ -187,6 +187,10 @@ export const updateRepairStatus = async (req: any, res: any) => {
             repairId: updatedRepair._id,
             totalParts,
             totalLabor,
+            totalHT,
+            tvaRate,
+            tvaAmount,
+            timbreFiscal,
             totalTTC,
             status: "Non payée",
           });
@@ -194,6 +198,10 @@ export const updateRepairStatus = async (req: any, res: any) => {
           // Update existing one if not paid yet
           existingInvoice.totalParts = totalParts;
           existingInvoice.totalLabor = totalLabor;
+          existingInvoice.totalHT = totalHT;
+          existingInvoice.tvaRate = tvaRate;
+          existingInvoice.tvaAmount = tvaAmount;
+          existingInvoice.timbreFiscal = timbreFiscal;
           existingInvoice.totalTTC = totalTTC;
           await existingInvoice.save();
         }

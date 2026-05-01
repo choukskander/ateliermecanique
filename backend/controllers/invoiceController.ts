@@ -12,7 +12,7 @@ export const listInvoices = async (req: any, res: any) => {
       .populate({
         path: "repairId",
         populate: [
-          { path: "appointmentId", populate: [{ path: "vehicleId" }, { path: "clientId", select: "name email" }] },
+          { path: "appointmentId", populate: [{ path: "vehicleId" }, { path: "clientId", select: "name email matriculeFiscale address" }] },
           { path: "mechanicId", select: "name" },
           { path: "partsUsed.partId" },
         ],
@@ -31,7 +31,7 @@ export const getInvoiceById = async (req: any, res: any) => {
     const invoice = await Invoice.findById(id).populate({
       path: "repairId",
       populate: [
-        { path: "appointmentId", populate: [{ path: "vehicleId" }, { path: "clientId", select: "name email" }] },
+        { path: "appointmentId", populate: [{ path: "vehicleId" }, { path: "clientId", select: "name email matriculeFiscale address" }] },
         { path: "mechanicId", select: "name" },
         { path: "partsUsed.partId" },
       ],
@@ -75,10 +75,14 @@ export async function computeInvoiceTotals(repairId: any) {
   }
 
   const totalLabor = Number(repair.laborCost || 0);
-  const totalTTC = totalParts + totalLabor;
+  const totalHT = totalParts + totalLabor;
+  const tvaRate = 19;
+  const tvaAmount = totalHT * (tvaRate / 100);
+  const timbreFiscal = 1.000;
+  const totalTTC = totalHT + tvaAmount + timbreFiscal;
 
-  console.log(`💰 [Facture Final] ID:${repairId} | Pièces:${totalParts} | MO:${totalLabor} | TTC:${totalTTC}`);
+  console.log(`💰 [Facture Final] HT:${totalHT} | TVA:${tvaAmount} | Timbre:${timbreFiscal} | TTC:${totalTTC}`);
   
-  return { totalParts, totalLabor, totalTTC, repair };
+  return { totalParts, totalLabor, totalHT, tvaRate, tvaAmount, timbreFiscal, totalTTC, repair };
 }
 

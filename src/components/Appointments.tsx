@@ -490,7 +490,7 @@ export default function Appointments({ currentUser }: { currentUser: any }) {
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              className="w-full max-w-2xl bg-[#111114] border border-white/10 rounded-3xl p-8 shadow-2xl relative z-10"
+              className="w-full max-w-2xl bg-[#111114] border border-white/10 rounded-2xl sm:rounded-3xl p-5 sm:p-8 shadow-2xl relative z-10 max-h-[90vh] overflow-y-auto"
             >
               <div className="flex items-center justify-between mb-8">
                  <div className="flex items-center gap-3">
@@ -502,28 +502,28 @@ export default function Appointments({ currentUser }: { currentUser: any }) {
 
               <div className="space-y-3">
                 {["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"].map((dayName, i) => (
-                  <div key={i} className={`flex items-center gap-4 p-4 rounded-2xl border transition-all ${schedules[i].isAvailable ? 'bg-white/5 border-white/10' : 'bg-transparent border-dashed border-white/5 opacity-50'}`}>
-                    <div className="w-12 text-xs font-bold uppercase tracking-widest text-slate-400">{dayName}</div>
-                    <div className="flex-1 flex items-center gap-4">
+                  <div key={i} className={`flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl sm:rounded-2xl border transition-all ${schedules[i].isAvailable ? 'bg-white/5 border-white/10' : 'bg-transparent border-dashed border-white/5 opacity-50'}`}>
+                    <div className="w-full sm:w-12 text-[10px] sm:text-xs font-bold uppercase tracking-widest text-slate-400">{dayName}</div>
+                    <div className="flex-1 flex items-center gap-2 sm:gap-4">
                       <input 
                         type="time" 
                         value={schedules[i].startTime} 
                         onChange={(e) => updateTime(i, 'startTime', e.target.value)}
                         disabled={!schedules[i].isAvailable}
-                        className="bg-[#16161A] border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white outline-none focus:border-blue-500/50" 
+                        className="flex-1 sm:flex-none bg-[#16161A] border border-white/10 rounded-lg px-3 py-2 sm:py-1.5 text-xs text-white outline-none focus:border-blue-500/50" 
                       />
-                      <span className="text-slate-600">à</span>
+                      <span className="text-slate-600 text-xs">à</span>
                       <input 
                         type="time" 
                         value={schedules[i].endTime} 
                         onChange={(e) => updateTime(i, 'endTime', e.target.value)}
                         disabled={!schedules[i].isAvailable}
-                        className="bg-[#16161A] border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white outline-none focus:border-blue-500/50" 
+                        className="flex-1 sm:flex-none bg-[#16161A] border border-white/10 rounded-lg px-3 py-2 sm:py-1.5 text-xs text-white outline-none focus:border-blue-500/50" 
                       />
                     </div>
                     <button 
                       onClick={() => toggleDay(i)}
-                      className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all ${schedules[i].isAvailable ? 'bg-green-500/10 text-green-500 border border-green-500/20' : 'bg-red-500/10 text-red-500 border border-red-500/20'}`}
+                      className={`w-full sm:w-auto px-3 py-2 sm:py-1.5 rounded-lg text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-all ${schedules[i].isAvailable ? 'bg-green-500/10 text-green-500 border border-green-500/20' : 'bg-red-500/10 text-red-500 border border-red-500/20'}`}
                     >
                       {schedules[i].isAvailable ? 'Ouvert' : 'Fermé'}
                     </button>
